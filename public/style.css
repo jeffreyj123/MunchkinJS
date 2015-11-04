@@ -1,0 +1,222 @@
+body {
+  font-family: arial;
+  background-color: #222;
+}
+
+li {
+  display: inline;
+}
+
+img {
+  width: auto;
+  height: 275px;
+}
+
+#fields img:hover {
+  cursor: pointer;
+}
+
+#fields {
+  width: calc(100% - 210px);
+  float: left;
+}
+
+#infobar {
+  width: calc(100% - 200px);
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  overflow: hidden;
+  background-color: #f1f1f1;
+  position: fixed;
+}
+
+#infobar h4 {
+  display: inline;
+}
+
+#infobar ul{
+  display: inline;
+}
+
+#sidebar {
+  height: 100%;
+  width: 200px;
+  float: left;
+  border-right-style: solid;
+  border-right-width: 1px;
+  background-color: #99CCFF;
+}
+
+#options h4:hover {
+  cursor: pointer;
+}
+
+#staticOptionsBox h4:hover {
+  cursor: default;
+}
+
+#options li:hover {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#game {
+  margin-top: 40px;
+}
+
+#doors {
+  display: inline;
+  float: left;
+}
+
+#dDis {
+  display: inline;
+  float: left;
+}
+
+#gameField {
+  display: inline;
+}
+
+#tDis {
+  display: inline;
+  float: right;
+}
+
+#treasures {
+  display: inline;
+  float: right;
+}
+
+#loadScreen {
+  font-family: Verdana;
+  float: right;
+  text-align: center;
+  background-color: #222;
+  width: calc(100% - 200px);
+  min-height: 700px;
+}
+
+#loadScreen img {
+  width: auto;
+  height: 100px;
+  margin-top: 12.5px;
+}
+
+#loadScreen h1 {
+  font-size: 70px;
+  color: #A9A9A9;
+  margin-top: 25px;
+}
+
+#loadScreen h3 {
+  color: #A9A9A9;
+}
+
+.loadBar {
+  display: table;
+  width: 80%;
+  height: 125px;
+  margin: 20px;
+  margin-left: 10%;
+  background-color: #f1f1f1;
+  border-style: solid;
+  border-width: 3px;
+  border-radius: 25px;
+}
+
+.loadBar span {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: left;
+  font-size: 50px;
+  font-family: arial;
+}
+
+.handField {
+  float: left;
+  width: 10%;
+  min-width: 125px;
+  height: 280px;
+  text-align: center;
+  background-color: #DCDCDC;
+  display: table;
+}
+
+#otherPlayers .ui-menu {
+  background-color: #DCDCDC;
+}
+
+.handField ul {
+  display: table-row;
+}
+
+#player ul {
+  line-height: 130px;
+}
+
+.handField div {
+  border-style: solid;
+  border-width: 5px;
+  border-color: #4A0000;
+}
+
+.handField div:hover {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.card:hover {
+  cursor: pointer;
+  height: 300px;
+  width: auto;
+}
+
+.field {
+  height: 30%;
+  width: 90%;
+  display: inline;
+  overflow: hidden;
+  background-color: white;
+}
+
+.field div {
+  display: inline;
+  text-align: left;
+}
+
+.gameDiv {
+  height: 280px;
+  overflow-y: auto;
+  background-color: gray;
+  border-radius: 5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 10px;
+}
+
+.optionMenu {
+  border-top-style: solid;
+  border-top-width: 1px;
+}
+
+.optionMenu li {
+  display: block;
+  background-color: #f1f1f1;
+}
+
+.ui-menu { width: 100px; z-index: 1}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+form { background: #000; padding: 3px; width: 100%; }
+form input { border: 0; width: 100%; }
+#messages { list-style-type: none; margin: 0; padding: 0; height: 250px; overflow-y: auto; background-color: #E0FFFF; }
+#messages li { display: list-item; }
+#messages li:nth-child(odd) { background: #eee; }
+#history { list-style-type: none; margin: 0; padding: 0; height: 150px; overflow-y: auto; background-color: #E0FFFF; }
+#history li { display: list-item; }
+#history li:nth-child(odd) { background: #eee; }
+.selected { border-style: solid; border-width: 3px; border-color: yellow;}
+.unequipped { border-style: solid; border-width: 3px; border-color: red;
+}

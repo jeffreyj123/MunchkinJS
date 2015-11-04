@@ -1,0 +1,49 @@
+<div class="gameEvent" id="trade">
+  <div id="tradePlayer1">
+    <div id="tradePlayer1Name"></div>
+    <div class="field" id="tradePlayer1Cards"></div>
+    <div class="confirm" onClick="confirmTrade()"></div>
+  </div>
+  <div id="tradePlayer2">
+    <div id="tradePlayer2Name"></div>
+    <div class="field" id="tradePlayer2Cards"></div>
+    <div class="cancel" onClick="closeTrade()">Cancel</div>
+  </div>
+</div>
+
+<div class="gameEvent" id="endCombat">
+  <div id="message"></div>
+  <div id="dispute" onClick="socket.emit('dispute')"></div>
+</div>
+
+<div class="gameEvent" id="share">
+  <div id="sharePlayer1">
+    <div id="sharePlayer1Name"></div>
+    <div class="field" id="sharePlayer1Cards"></div>
+    <div id="addShare1" onclick="addShareCard('#addShare1')">Add Card</div>
+    <div class="confirm" onClick="confirmShare()"></div>
+  </div>
+  <div id="sharePlayer2">
+    <div id="sharePlayer2Name"></div>
+    <div class="field" id="sharePlayer2Cards"></div>
+    <div id="addShare2" onClick="addShareCard('#addShare2')">Add Card</div>
+    <div class="cancel" onClick="closeShare()"></div>
+  </div>
+</div>
+
+<div class="gameEvent" id="diceRoll">
+  <img id="dice" src="dice.gif"/> // check it
+  <button onClick="rollDice()">Roll It!</button>
+  <button onClick="$('#diceRoll').hide()">Cancel</button>
+</div>
+
+<div class="gameEvent" id="chooseCards">
+  <div class="field"></div>
+</div>
+
+<div class="gameEvent" id="sell">
+  <div class="field"></div>
+  <div id="sellValue"></div>
+  <button onClick="">Confirm</button>
+  <button onClick="">Cancel</button>
+</div>
