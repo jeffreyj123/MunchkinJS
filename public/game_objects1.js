@@ -90,7 +90,7 @@ method.findCards = function(cardNames, decks) {
 
   if (typeof decks === 'undefined') {
     var players = this.players;
-    decks = [this.doors, this.dDis, this.treas, this.tDis];
+    decks = [this.doors, this.dDis, this.treas, this.tDis, this.field];
     for (var player of players.values()) {
       decks = decks.concat(player.decks);
     }
@@ -107,7 +107,6 @@ method.findCards = function(cardNames, decks) {
     }
     if (card == null) {
     //error code
-    console.log(decks);
       console.log(cardName + ' not found');
     } else {
       cards.set(cardName, card);

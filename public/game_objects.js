@@ -68,7 +68,6 @@ method.kick = function() {
 
 method.discard = function(cards) {
   cards = this.findCards(cards);
-
   for (var card of cards.values()) {
     if ('treasure item bonus'.indexOf(card.cardType) !== -1) {
       card.setCard1(this.tDis);

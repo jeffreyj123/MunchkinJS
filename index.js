@@ -180,7 +180,7 @@ io.on('connection', function(socket){
     switch (deck) {
       case 'field':
         for (var card of cardObjects.values()) {
-          card.setCard(game.field);
+          card.setCard1(game.field);
         }
         deckName = 'Game Field';
         break;
@@ -190,12 +190,12 @@ io.on('connection', function(socket){
         break;
       case 'doors':
         for (var card of cardObjects.values()) {
-          card.setCard(game.doors);
+          card.setCard1(game.doors);
         }
         deckName = 'Doors';
       case 'treasures':
         for (var card of cardObjects.values()) {
-          card.setCard(game.treas);
+          card.setCard1(game.treas);
         }
         deckName = 'Treasures';
         break;
@@ -205,31 +205,31 @@ io.on('connection', function(socket){
         switch (deckWords[1]) {
           case 'field':
             for (var card of cardObjects.values()) {
-              card.setCard(player.field);
+              card.setCard1(player.field);
             }
             deckName = player.name + ' Field';
             break;
           case 'hand':
             for (var card of cardObjects.values()) {
-              card.setCard(player.hand);
+              card.setCard1(player.hand);
             }
             deckName = player.name + ' Hand';
             break;
           case 'classes':
             for (var card of cardObjects.values()) {
-              card.setCard(player.classes);
+              card.setCard1(player.classes);
             }
             deckName = player.name + ' Classes';
             break;
           case 'races':
             for (var card of cardObjects.values()) {
-              card.setCard(player.races);
+              card.setCard1(player.races);
             }
             deckName = player.name + ' Races';
             break;
           case 'bonuses':
             for (var card of cardObjects.values()) {
-              card.setCard(player.bonuses);
+              card.setCard1(player.bonuses);
             }
             deckName = player.name + ' Bonuses';
             break;

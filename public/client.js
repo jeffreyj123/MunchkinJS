@@ -26,6 +26,7 @@ socket.on('move cards', function(deck, cards) {
       break;
     case 'discard':
       game.discard(cards);
+      console.log(cardObjects);
       playerName = 'discard';
       fieldName = 'Field';
       break;
@@ -85,7 +86,7 @@ socket.on('move cards', function(deck, cards) {
     loadCards('card', fieldName, cards);
   } else {
     if (playerName == 'discard') {
-      if ('treasure item bonus'.indexOf(cardObjects.values().next().value.cardType) !== -1) {
+      if ('treasure item bonus'.indexOf(game.findCards(cards).values().next().value.cardType) !== -1) {
         playerName = 'tDis';
       } else {
         playerName = 'dDis';
