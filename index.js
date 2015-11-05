@@ -1,7 +1,9 @@
 var express = require('express');
 var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var port = process.env.PORT || 3000;
+var server = app.listen(port);
+var http = require('http');
+var io = require('socket.io').listen(server);
 var socketList = [];
 var Game = require("./public/game_objects.js");
 
@@ -370,6 +372,3 @@ io.on('connection', function(socket){
     }
   });*/
 });
-
-var port = process.env.PORT || 3000;
-app.listen(port);

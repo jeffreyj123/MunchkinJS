@@ -222,7 +222,7 @@
     <script src="game_objects1.js"></script>
     <script src="munchCardNames.js"></script>
     <script>
-      var socket = io();
+      var socket = io.connect();
       var game = new Game();
       var spectate = false;
       var username = '';
@@ -284,6 +284,9 @@
       }
 
       socket.on('toggle equip', function (name) {
+        if(name.indexOf('+') !== -1) {
+          name = name.replace('+', '\\+');
+        }
         $('#' + name).toggleClass('unequipped');
       });
 
@@ -294,6 +297,10 @@
         if (e.which === 3) {
           socket.emit('toggle equip', $(this).attr('id'));
         } 
+      });
+
+      $('.card').on("contextmenu", function(evt) {
+        evt.preventDefault();
       });
     </script>
     <script src="chat.js"></script>
