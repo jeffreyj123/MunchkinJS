@@ -74,7 +74,7 @@ io.on('connection', function(socket){
   socket.on('disconnect', function(){
     if (typeof socket.username !== 'undefined') {
       io.emit('chat message', socket.username + ' has disconnected');
-      if (online.indexOf(socket.username) != -1) {
+      if (online.indexOf(socket.username) !== -1) {
         online.splice(online.indexOf(socket.username), 1);
         io.emit('online update', online, players);
       }
