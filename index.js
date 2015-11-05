@@ -370,3 +370,6 @@ io.on('connection', function(socket){
     }
   });*/
 });
+
+var port = process.env.PORT || 3000;
+app.listen(port);
