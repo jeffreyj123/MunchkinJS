@@ -49,7 +49,7 @@
           <ul id="staticOptions">
             <li onClick="socket.emit('kick')">Kick</li>
             <li onClick="socket.emit('loot')">Loot the Room</li>
-            <li onClick="socket.emit('look')">Look for Trouble</li>
+            <li onClick="lookForTrouble()">Look for Trouble</li>
 <!--             <li onClick="charityDialog()">Charity</li> -->
             <li>
               <ul id="drawMenu">
@@ -267,6 +267,14 @@
           toggleSelect(cardName);
         }
         socket.emit('move cards', deck, cardNames);
+      }
+
+      function lookForTrouble() {
+        var monsterName = getSelected()[0];
+        for (var cardName of getSelected()) {
+          toggleSelect(cardName);
+        }
+        socket.emit('look', monsterName);
       }
 
       function loadCards(playerName, field, cards) {

@@ -94,9 +94,10 @@ io.on('connection', function(socket){
         choices = [];
         players = 6;
         for (var i = 0; i < game.players.size; i++) {
-          var playerName = game.players.values().next().value.name;
+          var playerName = game.players.keys().next().value;
           game.delPlayer(playerName);
         }
+        game.delPlayer(game.players.keys().next().value);
       }
     }
   });
@@ -237,7 +238,7 @@ io.on('connection', function(socket){
     var player = game.players.get(socket.username);
     player.draw(game.doors, game.dDis, 1);
     io.emit('loot', socket.username);
-    io.emit('history', socket.username + 'has looted the room!');
+    io.emit('history', socket.username + ' has looted the room!');
   });
 
   // look for trouble phase
@@ -245,7 +246,7 @@ io.on('connection', function(socket){
     var monster = game.findCards([monsterName]).values().next().value;
     monster.setCard1(game.field);
 
-    io.emit('look', socket.username, monsterName);
+    io.emit('look', monsterName);
     io.emit('history', socket.username + ' is looking for trouble!');
   });
 
