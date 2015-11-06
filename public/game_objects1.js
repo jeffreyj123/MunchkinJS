@@ -3,10 +3,16 @@ var method = Game.prototype;
 
 function Game() {
   this.players = new Map();
+  this.unsetPlayers = new Map();
   this.vassal = true;
   this.turn = 0;
   this.round = null;
   this.trade = null;
+
+  for (var i = 0; i < 6; i++) {
+    this.unsetPlayers.set("player" + i.toString(),
+      new Player("player" + i.toString()));
+  }
 
   var treasures = [["1000_gold_pieces", new Card(['1000_gold_pieces', 'treasure'])], ["boots_of_butt-kicking", new Card(['boots_of_butt-kicking', 'item'])], ["boots_of_running_really_fast", new Card(['boots_of_running_really_fast', 'item'])], ["bribe_gm_with_food", new Card(['bribe_gm_with_food', 'treasure'])], ["broad_sword", new Card(['broad_sword', 'item'])], ["buckler_of_swashing", new Card(['buckler_of_swashing', 'item'])], ["chainsaw_of_bloody_dismemberment", new Card(['chainsaw_of_bloody_dismemberment', 'item'])], ["cheese_grater_of_piece", new Card(['cheese_grater_of_piece', 'item'])], ["cloak_of_obscurity", new Card(['cloak_of_obscurity', 'item'])], ["convenient_addition_error", new Card(['convenient_addition_error', 'treasure'])], ["cotion_of_ponfusion", new Card(['cotion_of_ponfusion', 'bonus'])], ["dagger_of_treachery", new Card(['dagger_of_treachery', 'item'])], ["doppleganger", new Card(['doppleganger', 'treasure'])], ["electric_radioactive_poison", new Card(['electric_radioactive_poison', 'bonus'])], ["eleven-foot_pole", new Card(['eleven-foot_pole', 'item'])], ["flaming_armor", new Card(['flaming_armor', 'item'])], ["flaming_poison_potion", new Card(['flaming_poison_potion', 'bonus'])], ["flask_of_glue", new Card(['flask_of_glue', 'treasure'])], ["freezing_explosive_potion", new Card(['freezing_explosive_potion', 'bonus'])], ["gentlemens_club", new Card(["gentlemens_club", 'item'])], ["hammer_of_kneecapping", new Card(['hammer_of_kneecapping', 'item'])], ["helm_of_courage", new Card(['helm_of_courage', 'item'])], ["hireling", new Card(['hireling', 'item'])], ["hoard", new Card(['hoard', 'treasure'])], ["horny_helmet", new Card(['horny_helmet', 'item'])], ["instant_wall", new Card(['instant_wall', 'item'])], ["invisibility_potion", new Card(['invisibility_potion', 'item'])], ["invoke_obscure_rules", new Card(['invoke_obscure_rules', 'treasure'])], ["kill_the_hireling", new Card(['kill_the_hireling', 'treasure'])], ["leather_armor", new Card(['leather_armor', 'item'])], ["limburger_and_anchovy_sandwich", new Card(['limburger_and_anchovy_sandwich', 'item'])], ["loaded_die", new Card(['loaded_die', 'item'])], ["mace_of_sharpness", new Card(['mace_of_sharpness', 'item'])], ["magic_lamp", new Card(['magic_lamp', 'item'])], ["magic_missile", new Card(['magic_missile', 'bonus'])], ["mithril_armor", new Card(['mithril_armor', 'item'])], ["mutilate_the_bodies", new Card(['mutilate_the_bodies', 'treasure'])], ["nasty-tasting_sports_drink", new Card(['nasty-tasting_sports_drink', 'bonus'])], ["pantyhose_of_giant_strength", new Card(['pantyhose_of_giant_strength', 'item'])], ["pointy_hat_of_power", new Card(['pointy_hat_of_power', 'item'])], ["polymorph_portion", new Card(['polymorph_portion', 'item'])], ["potion_of_halitosis", new Card(['potion_of_halitosis', 'bonus'])], ["potion_of_idiotic_bravery", new Card(['potion_of_idiotic_bravery', 'bonus'])], ["pretty_balloons", new Card(['pretty_balloons', 'bonus'])], ["rapier_of_unfairness", new Card(['rapier_of_unfairness', 'item'])], ["rat_on_a_stick", new Card(['rat_on_a_stick', 'item'])], ["really_impressive_title", new Card(['really_impressive_title', 'treasure'])], ["sandals_of_protection", new Card(['sandals_of_protection', 'item'])], ["shield_of_ubiquity", new Card(['shield_of_ubiquity', 'item'])], ["singing_and_dancing_sword", new Card(['singing_and_dancing_sword', 'item'])], ["sleep_potion", new Card(['sleep_potion', 'bonus'])], ["slimy_armor", new Card(['slimy_armor', 'item'])], ["sneaky_bastard_sword", new Card(['sneaky_bastard_sword', 'item'])], ["spiky_knees", new Card(['spiky_knees', 'item'])], ["staff_of_napalm", new Card(['staff_of_napalm', 'item'])], ["steal_a_level", new Card(['steal_a_level', 'treasure'])], ["swiss_army_polearm", new Card(['swiss_army_polearm', 'item'])], ["wand_of_dowsing", new Card(['wand_of_dowsing', 'item'])], ["whine_at_the_gm", new Card(['whine_at_the_gm', 'treasure'])], ["wishing_ring", new Card(['wishing_ring', 'item'])], ["yuppie_water", new Card(['yuppie_water', 'bonus'])]];
 
@@ -22,25 +28,24 @@ function Game() {
   this.treas.dShuffle(); // shuffle treasures
 }
 
-method.setPlayers = function(playerObj) {
+method.initPlayers = function(playerObj) {
   var gamePlayers = this.players;
-  var cardsMove = {players: [], doors: [], treas: []};
-  for (var i = 0; i < 6; i++) {
-    if (i + 1 > playerObj.length) {
-      gamePlayers.delete("player" + i.toString());
-    } else {
-      var currPlayer = gamePlayers.get("player" + i.toString());
-      currPlayer.name = playerObj[i].name;
-      currPlayer.gender = playerObj[i].gender;
-      currPlayer.draw(this.doors, this.dDis, 4);
-      currPlayer.draw(this.treas, this.tDis, 4);
-      var handNames = [];
-      for (var card of currPlayer.hand.cards.keys()) {
-        handNames.push(card);
-      }
-      cardsMove.players.push([playerObj[i], handNames]);
-      gamePlayers.set(playerObj[i].name, currPlayer);
+  for (var player of playerObj) {
+    this.addPlayer(player, [], []);
+  }
+}
+
+method.getGameInfo = function() {
+  var gameInfo = {players: [], doors: [], treas: []};
+  for (var player of this.players.values()) {
+    var playerInfo = [{name: player.name, gender: player.gender}, [], []];
+    for (var name of player.hand.cards.keys()) {
+      playerInfo[1].push(name);
     }
+    for (var name of player.field.cards.keys()) {
+      playerInfo[2].push(name);
+    }
+    gameInfo.players.push(playerInfo);
   }
   var doorNames = [];
   var treasNames = [];
@@ -51,9 +56,55 @@ method.setPlayers = function(playerObj) {
     treasNames.push(treas);
   }
 
-  cardsMove.doors = doorNames;
-  cardsMove.treas = treasNames;
-  return cardsMove;
+  gameInfo.doors = doorNames;
+  gameInfo.treas = treasNames;
+  return gameInfo;
+}
+
+method.addPlayer = function(playerInfo, handNames, fieldNames) {
+  var oldPlayerName = "player" + this.players.size.toString();
+  var currPlayer = this.unsetPlayers.get(oldPlayerName);
+  currPlayer.name = playerInfo.name;
+  currPlayer.gender = playerInfo.gender;
+  if (handNames.length + fieldNames.length > 0) {
+    var handCards = this.findCards(handNames);
+    var fieldCards = this.findCards(fieldNames);
+    for (var card of handCards.values()) {
+      card.setCard1(currPlayer.hand);
+    }
+    for (var card of fieldCards.values()) {
+      card.setCard1(currPlayer.field);
+    }
+  } else {
+    currPlayer.draw(this.doors, this.dDis, 4);
+    currPlayer.draw(this.treas, this.tDis, 4);
+    for (var card of currPlayer.hand.cards.keys()) {
+      handNames.push(card);
+    }
+  }
+  this.players.set(playerInfo.name, currPlayer);
+  this.unsetPlayers.delete(oldPlayerName);
+  return [playerInfo, handNames, fieldNames];
+}
+
+method.delPlayer = function(playerName) {
+  var player = this.players.get(playerName);
+  player.level = 1;
+  player.strength = 1;
+  player.handSize = 5;
+  for (var deck of player.decks) {
+    for (var card of deck.cards.values()) {
+      if ('treasure item bonus'.indexOf(card.cardType) !== -1) {
+        card.setCard1(this.treas);
+        card.isEquipped = true;
+      } else {
+        card.setCard1(this.doors);
+        card.isEquipped = true;
+      }
+    }
+  }
+  this.unsetPlayers.set("player" + (this.players.size - 1).toString(), player);
+  this.players.delete(playerName);
 }
 
 method.kick = function() {
@@ -279,13 +330,13 @@ method4.draw = function(deck1, deck2, num, names) {
   if (names != null) {
     for (var cardName of names) {
       var card = deck1.selectCard(cardName);
-      card.setCard(this.hand);
+      card.setCard1(this.hand);
     }
     deck1.dShuffle();
   } else {
     for (var i = 0; i < num; i++) {
       var card = deck1.selectCard('last');
-      card.setCard(this.hand);
+      card.setCard1(this.hand);
 
       if (deck1.numCards == 0) {
         deck1.swap(deck2);

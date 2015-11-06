@@ -48,9 +48,9 @@
           <h4>Game Options</h4>
           <ul id="staticOptions">
             <li onClick="socket.emit('kick')">Kick</li>
-<!--             <li onClick="lootDialog()">Loot</li>
-            <li onClick="trouble()">Look for Trouble</li>
-            <li onClick="charityDialog()">Charity</li> -->
+            <li onClick="socket.emit('loot')">Loot the Room</li>
+            <li onClick="socket.emit('look')">Look for Trouble</li>
+<!--             <li onClick="charityDialog()">Charity</li> -->
             <li>
               <ul id="drawMenu">
                 <li>Draw
@@ -58,25 +58,25 @@
                     <li>Door
                       <ul>
                         <li onClick="socket.emit('draw', 'doors')">Normal</li>
-                        <li onClick="$('#doorCardDiv').toggle()">Choice</li>
+                        <li onClick="socket.emit('toggle deck', 'door')">Choice (toggle)</li>
                       </ul>
                     </li>
                     <li>Treasure
                       <ul>
                         <li onClick="socket.emit('draw', 'treas')">Normal</li>
-                        <li onClick="$('#treasCardDiv').toggle()">Choice</li>
+                        <li onClick="socket.emit('toggle deck', 'treas')">Choice (toggle)</li>
                       </ul>
                     </li>
                     <li>Door Discard
                       <ul>
                         <li onClick="socket.emit('draw', 'dDis')">Normal</li>
-                        <li onClick="$('#dDisCardDiv').toggle()">Choice</li>
+                        <li onClick="socket.emit('toggle deck', 'dDis')">Choice (toggle)</li>
                       </ul>
                     </li>
                     <li>Treasure Discard
                       <ul>
                         <li onClick="socket.emit('draw', 'tDis')">Normal</li>
-                        <li onClick="$('#tDisCardDiv').toggle()">Choice</li>
+                        <li onClick="socket.emit('toggle deck', 'tDis')">Choice (toggle)</li>
                       </ul>
                     </li>
                     <li>Players
@@ -98,6 +98,7 @@
               </ul>
             </li>
             <li onClick="moveCard('discard')">Discard</li>
+            <li onClick="socket.emit('end turn')">End Turn</li>
             <!-- <li>  
               <ul id="tradeMenu">
                 <li>Trade
@@ -132,12 +133,13 @@
               </ul>
             </li>
             <li onClick="randomVal()">Get Roll</li>
-            <!-- <li onClick="resurrectDialog()">Resurrect</li>
-            <li onClick="runDialog()">Run Away</li>
-            <li onClick="endCombat()">End Combat</li>
-            <li onClick="disputeDialog()">End Turn</li> -->
+<!--             <li onClick="socket.emit('resurrect')">Resurrect</li> -->
+            <!-- <li onClick="runDialog()">Run Away</li> -->
+<!--             <li onClick="startCombat()">Start Combat</li>
+            <li onClick="endCombat()">End Combat</li> -->
+            <li onClick="socket.emit('toggle hand')">Toggle Hand</li>
             <li onClick="socket.emit('change gender')">Change Gender</li>
-            <li><a href="http://www.worldofmunchkin.com/rules/munchkin_rules.pdf"/>Rules</a></li>
+            <li><a target="_blank" href="http://www.worldofmunchkin.com/rules/munchkin_rules.pdf"/>Rules</a></li>
           </ul>
         </div>
       </div>
@@ -154,7 +156,9 @@
           </li>
           <li>
             <ul id="monsterInfo">
-              <li>Monster Strength: <span id="monsterStr"></span></li>
+              <li><button id="addMonStr" onClick="socket.emit('monster strength', 1)">Plus</button></li>
+              <li>Monster Strength: <span id="monsterStr">0</span></li>
+              <li><button id="lowerMonStr" onClick="socket.emit('monster strength', -1)">Minus</button></li>
             </ul>
           </li>
           <li>
@@ -177,11 +181,11 @@
       </div>
 
       <div class="gameDiv" id="game">
-        <div id="doors"><img src="/images/door_back.gif" onClick="socket.emit('draw', 'doors')"/></div>
+        <div id="doors"><img src="/images/door_back.gif"/></div>
         <div id="dDis"></div>
         <div class="field" id="gameFieldCards"></div>
         <div id="tDis"></div>
-        <div id="treasures"><img src="/images/treasure_back.gif" onClick="socket.emit('draw', 'treas')"/></div>
+        <div id="treasures"><img src="/images/treasure_back.gif"/></div>
       </div>
 
       <div class="gameDiv" id="doorCardDiv">
@@ -236,8 +240,6 @@
       $('#fields').hide();
       $('#loadScreen').show();
       $('#options').hide();
-      $('#turnPlayerInfo').hide();
-      $('#monsterInfo').hide();
       
       function toggleSelect(card) {
         var index = selectedCards.indexOf(card);
@@ -283,11 +285,31 @@
         $('#imageContainer').append('<img class="card" id="' + name + '" src="/images/' + cardName + '"/>');
       }
 
-      socket.on('toggle equip', function (name) {
+      $('#doors').on('mousedown', function(e) {
+        if (e.which == 1) {
+          socket.emit('draw', 'doors');
+        }
+        if (e.which == 3) {
+          socket.emit('face up', 'doors');
+        }
+      });
+
+      $('#treasures').on('mousedown', function(e) {
+        if (e.which == 1) {
+          socket.emit('draw', 'treas');
+        }
+        if (e.which == 3) {
+          socket.emit('face up', 'treas');
+        }
+      });
+
+      socket.on('toggle equip', function (name, isEquipped) {
+        var card  = game.findCards([name]);
         if(name.indexOf('+') !== -1) {
           name = name.replace('+', '\\+');
         }
         $('#' + name).toggleClass('unequipped');
+        card.isEquipped = isEquipped;
       });
 
       $('.card').on('mousedown', function(e) {
@@ -299,7 +321,11 @@
         } 
       });
 
-      $('.card').on("contextmenu", function(evt) {
+      $('.card').on('contextmenu', function(evt) {
+        evt.preventDefault();
+      });
+
+      $('#game').on('contextmenu', function(evt) {
         evt.preventDefault();
       });
     </script>
@@ -314,7 +340,7 @@
         myMessage('You have connected to the server. You may start sending messages...');
       });
 
-      socket.on('username', function(gender) {
+      socket.on('username', function() {
       	username = prompt('Username taken. Choose another.');
       	$('#user').text(username);
       	socket.emit('new user', username, gender);
@@ -324,10 +350,14 @@
       	$('#messages').append($('<li>').text('Sorry, the game is full. You may continue sending messages or ask to be added to the game.'));
       	spectate = true;
       	$('#player').hide();
-        $('.optionMenu').hide();
+        $('#options').hide();
         $('#loadScreen').hide();
         $('#fields').show();
-        // do other stuff
+        $('#playerInfo').hide();
+        $('#monsterInfo button').hide();
+        $('#doors').hide();
+        $('#treasures').hide();
+        socket.emit('spectate');
       });
 
       socket.on('unspectate', function(player) {
@@ -365,33 +395,30 @@
         $('#numPlayers').text(numPlayers - online.length);
       });
 
-    	socket.on('game', function(initCards) {
+    	socket.on('game', function(initCards, init) {
         for (var player of initCards.players) {
           var name = player[0].name;
           if (name != username) {
-            $('#otherPlayers').append('<div class="field" id="' + name + 'FieldCards"></div>');
-            $('#otherPlayers').append('<div class="field" id="' + name + 'HandCards"></div>');
-            $('.playerMenu').append('<li>' + name + '</li>');
-            $('#moveMenuPlayers').append('<li onClick="moveCard(\'' + name + ' hand\')">' + name + '</li>');
-            $('#curseMenuPlayers').append('<li onClick="moveCard(\'' + name + ' field\')">' + name + '</li>');
-            $('#otherHandField').append('<ul><div id="' + name + 'Field" onClick="togglePlayerField(\'' + name + '\', \'Field\')">' + name + ' Level: <span class="' + name + 'Level">1</span> Strength: <span class="' + name + 'Strength">1</span> Gender: <span class="' + name + 'Gender">' + player[0].gender + '</span></div></ul>');
-            var newPlayer = new Player(name, player[0].gender);
-            game.findCards(player[1]).forEach(function(card, name) {
-              card.setCard1(newPlayer.hand);
-            });
-            game.players.set(name, newPlayer);
+            if (init) {
+              $('#otherPlayers').append('<div class="field" id="' + name + 'FieldCards"></div>');
+              $('#otherPlayers').append('<div class="field" id="' + name + 'HandCards"></div>');
+              $('.playerMenu').append('<li>' + name + '</li>');
+              $('#moveMenuPlayers').append('<li onClick="moveCard(\'' + name + ' hand\')">' + name + '</li>');
+              $('#curseMenuPlayers').append('<li onClick="moveCard(\'' + name + ' field\')">' + name + '</li>');
+              $('#otherHandField').append('<ul><div id="' + name + 'Field" onClick="togglePlayerField(\'' + name + '\', \'Field\')">' + name + ' Level: <span class="' + name + 'Level">1</span> Strength: <span class="' + name + 'Strength">1</span> Gender: <span class="' + name + 'Gender">' + player[0].gender + '</span></div></ul>');  
+            }
+            game.addPlayer(player[0], player[1], player[2]);
+            var newPlayer = game.players.get(name);
             loadCards(name, 'Hand', player[1]);
+            loadCards(name, 'Field', player[2]);
             $('#' + name + 'HandCards').hide();
             $('#' + name + 'FieldCards').hide();
             togglePlayerField(name, 'Field');
           } else {
             if (!spectate) {
-              var newPlayer = new Player(name, player[0].gender);
-              game.findCards(player[1]).forEach(function(card, name) {
-                card.setCard1(newPlayer.hand);
-              });
-              game.players.set(name, newPlayer);
+              game.addPlayer(player[0], player[1], player[2]);
               loadCards('card', 'Hand', player[1]);
+              loadCards('card', 'Field', player[2]);
               $('#cardFieldCards').hide();
             }
           }
@@ -416,21 +443,25 @@
         $('#dDisCardDiv').hide();
         $('#tDisCardDiv').hide();
 
-        var num = initCards.players.length - 1;
-        var newHeight = ((280 - 10 * num) / num);
-        $('#otherHandField div').height(newHeight);
-
         // fix menus, add functionality incl toggle
         // initiate user menus
-        $('#drawMenu').menu();
-        $('#moveMenu').menu();
-        $('#curseMenu').menu();
-        $('#tradeMenu').menu();
-        $('#kickMenu').menu();
+        if (init) {
+          $('#turnPlayer').text(game.players.keys().next().value);
+          var num = initCards.players.length - 1;
+          var newHeight = ((280 - 10 * num) / num);
+          $('#otherHandField div').height(newHeight);
+          $('#drawMenu').menu();
+          $('#moveMenu').menu();
+          $('#curseMenu').menu();
+          $('#tradeMenu').menu();
+          $('#kickMenu').menu();
+        }
 
-        $('#loadScreen').hide();
-        $('#fields').show();
-        $('#options').show();
+        if (!spectate) {
+          $('#loadScreen').hide();
+          $('#fields').show();
+          $('#options').show();
+        }
     	});
     </script>
     <script src="client.js"></script>

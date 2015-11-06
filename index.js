@@ -27,33 +27,36 @@ io.on('connection', function(socket){
     socket.gender = gender;
     if (online.length == 0) {
       socket.emit('players');
-    } else if (online.indexOf(socket.username) != -1) {
+    } else if (socketList.indexOf(socket.username) !== -1) {
       socket.emit('username');
     } else {
-      if (online.length == players) {
+      if (online.length >= players) {
         spectate.push({name: socket.username, gender: socket.gender});
         socket.emit('spectate');
         socket.broadcast.emit('chat message', socket.username + ' is spectating.');
       } else {
         socket.broadcast.emit('chat message', socket.username + ' has connected.');
       }
+      socketList.push(user);
       online.push({name: socket.username, gender: socket.gender});
       io.emit('online update', online, players);
 
-      if(online.length == players) {
+      if(online.length == players && spectate.length == 0) {
 /*        var users = [];
         for (var user in online) {
           if (spectate.indexOf(online[user]) == -1) {
             users.push(online[user]);
           }
         }*/
-        io.emit('game', game.setPlayers(online));
+        game.initPlayers(online);
+        io.emit('game', game.getGameInfo(), true);
       }
     }
 	});
 
   socket.on('players', function(numPlayers) {
     players = numPlayers;
+    socketList.push(socket.username);
     online.push({name: socket.username, gender: socket.gender});
     io.emit('online update', online, players);
   });
@@ -71,21 +74,29 @@ io.on('connection', function(socket){
     }
   });
 
+  socket.on('spectate', function() {
+    socket.emit('game', game.getGameInfo(), true);
+  });
+
   socket.on('disconnect', function(){
     if (typeof socket.username !== 'undefined') {
       io.emit('chat message', socket.username + ' has disconnected');
-      if (online.indexOf(socket.username) !== -1) {
-        online.splice(online.indexOf(socket.username), 1);
+      if (socketList.indexOf(socket.username) !== -1) {
+        online.splice(socketList.indexOf(socket.username), 1);
+        socketList.splice(socketList.indexOf(socket.username), 1);
         io.emit('online update', online, players);
       }
       if(online.length == 0) {
-        game = new Game();
         vassal = true;
         online = [];
         spectate = [];
         typing = [];
         choices = [];
         players = 6;
+        for (var i = 0; i < game.players.size; i++) {
+          var playerName = game.players.values().next().value.name;
+          game.delPlayer(playerName);
+        }
       }
     }
   });
@@ -113,17 +124,29 @@ io.on('connection', function(socket){
   // leveling
   socket.on('level', function(amount) {
     var player = game.players.get(socket.username);
+    var levelString = '';
     player.level += amount;
     io.emit('level', player.name, amount);
-    io.emit('history', socket.username + ' level up by 1!');
+    if (amount < 0) {
+      levelString = ' level down by 1!';
+    } else {
+      levelString = ' level up by 1!';
+    }
+    io.emit('history', socket.username + levelString);
   });
 
   // changing strength
   socket.on('strength', function(amount) {
     var player = game.players.get(socket.username);
+    var strengthString = '';
     player.strength += amount;
     io.emit('strength', player.name, amount);
-    io.emit('history', socket.username + ' strength up by 1!');
+    if (amount < 0) {
+      strengthString = ' strength down by 1!';
+    } else {
+      strengthString = ' strength up by 1!';
+    }
+    io.emit('history', socket.username + strengthString);
   });
 
   // changing treasures
@@ -134,10 +157,106 @@ io.on('connection', function(socket){
   });
 
   // kick phase
+  socket.on('kick', function() {
+    var player = game.players.get(socket.username);
+    game.kick();
+    io.emit('kick');
+    io.emit('history', socket.username + ' has kicked!');
+  });
+
+  socket.on('random val', function(val) {
+    io.emit('random val', val);
+    io.emit('history', socket.username + ' has rolled for ' + val.toString() + '.');
+  });
+
+  socket.on('toggle hand', function() {
+    io.emit('toggle hand', socket.username);
+    io.emit('history', socket.username + ' has toggled their hand.');
+  });
+
+  socket.on('toggle deck', function(deckName) {
+    var nameString = '';
+    switch (deckName) {
+      case 'door':
+        nameString = 'Doors';
+        break;
+      case 'treas':
+        nameString = 'Treasures';
+        break;
+      case 'dDis':
+        nameString = 'Doors Discard';
+        break;
+      case 'tDis':
+        nameString = 'Treasures Discard';
+        break;
+      default:
+        break;
+    }
+    socket.emit('toggle deck', deckName);
+    io.emit('history', socket.username + ' has toggled ' + nameString);
+  });
+
+  socket.on('shuffle', function(deckName) {
+    switch (deckName) {
+      case 'doors':
+        game.doors.dShuffle();
+        break;
+      case 'treas':
+        game.treas.dShuffle();
+        break;
+      case 'tDis':
+        game.tDis.dShuffle();
+        break;
+      case 'dDis':
+        game.dDis.dShuffle();
+        break;
+      default:
+        break;
+    }
+    var deckInfo = game.getGameInfo();
+    // finish
+  })
+
+  socket.on('face up', function(deckName) {
+    var player = game.players.get(socket.username);
+    if (deckName == 'doors') {
+      var card = game.doors.selectCard('last');
+      player.draw(game.doors, game.dDis, 1);
+      game.findCards([card.name]).values().next().value.setCard1(game.field);
+    } else {
+      var card = game.treas.selectCard('last');
+      player.draw(game.treas, game.tDis, 1);
+      game.findCards([card.name]).values().next().value.setCard1(game.field);
+    }
+    io.emit('face up', socket.username, deckName);
+    io.emit('history', socket.username + ' has drawn ' + card.name + ' face up.');
+  })
 
   // loot phase
+  socket.on('loot', function() {
+    var player = game.players.get(socket.username);
+    player.draw(game.doors, game.dDis, 1);
+    io.emit('loot', socket.username);
+    io.emit('history', socket.username + 'has looted the room!');
+  });
 
   // look for trouble phase
+  socket.on('look', function(monsterName) {
+    var monster = game.findCards([monsterName]).values().next().value;
+    monster.setCard1(game.field);
+
+    io.emit('look', socket.username, monsterName);
+    io.emit('history', socket.username + ' is looking for trouble!');
+  });
+
+  socket.on('monster strength', function(amount) {
+    var strengthString = 'Monster strength up by 1.';
+    io.emit('monster strength', amount);
+    if (amount < 0) {
+      strengthString = 'Monster strength down by 1.';
+    }
+    io.emit('history', strengthString);
+  });
 
   // charity phase
 
@@ -158,6 +277,16 @@ io.on('connection', function(socket){
   // end combat
 
   // end turn
+  socket.on('end turn', function(playerName) {
+    game.turn += 1;
+    game.turn %= game.players.size;
+    var name = game.players.keys();
+    for (var i = 0; i < game.turn; i++) {
+      name.next();
+    }
+    io.emit('end turn', name.next().value);
+    io.emit('history', socket.username + ' has ended their turn.')
+  });
 
   // run away
 
@@ -257,16 +386,15 @@ io.on('connection', function(socket){
   });
 
   socket.on('toggle equip', function(cardName) {
-    var card = game.findCards([cardName]);
+    var card = game.findCards([cardName]).values().next().value;
     var equipString = ' equipped ';
     if (card.isEquipped) {
       card.isEquipped = false;
       equipString = ' unequipped ';
-      io.emit('toggle equip', cardName);
     } else {
       card.isEquipped = true;
-      io.emit('toggle equip', cardName);
     }
+    io.emit('toggle equip', cardName, card.isEquipped);
     io.emit('history', socket.username + equipString + cardName + '.');
   });
 
@@ -295,18 +423,6 @@ io.on('connection', function(socket){
     }
     io.emit('draw', socket.username, deck);
     io.emit('history', socket.username + ' drew from ' + deckName + '.');
-  });
-
-  socket.on('kick', function() {
-    var player = game.players.get(socket.username);
-    game.kick();
-    io.emit('kick');
-    io.emit('history', socket.username + ' has kicked!');
-  });
-
-  socket.on('random val', function(val) {
-    io.emit('random val', val);
-    io.emit('history', socket.username + ' has rolled for ' + val.toString() + '.');
   });
 /*
   //trade

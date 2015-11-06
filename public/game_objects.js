@@ -3,13 +3,14 @@ var method = Game.prototype;
 
 function Game() {
 	this.players = new Map();
+  this.unsetPlayers = new Map();
 	this.vassal = true;
 	this.turn = 0;
 	this.round = null;
 	this.trade = null;
 
   for (var i = 0; i < 6; i++) {
-    this.players.set("player" + i.toString(),
+    this.unsetPlayers.set("player" + i.toString(),
       new Player("player" + i.toString()));
   }
 
@@ -27,25 +28,24 @@ function Game() {
 	this.treas.dShuffle(); // shuffle treasures
 }
 
-method.setPlayers = function(playerObj) {
+method.initPlayers = function(playerObj) {
 	var gamePlayers = this.players;
-	var cardsMove = {players: [], doors: [], treas: []};
-  for (var i = 0; i < 6; i++) {
-    if (i + 1 > playerObj.length) {
-      gamePlayers.delete("player" + i.toString());
-    } else {
-      var currPlayer = gamePlayers.get("player" + i.toString());
-      currPlayer.name = playerObj[i].name;
-      currPlayer.gender = playerObj[i].gender;
-      currPlayer.draw(this.doors, this.dDis, 4);
-      currPlayer.draw(this.treas, this.tDis, 4);
-      var handNames = [];
-      for (var card of currPlayer.hand.cards.keys()) {
-        handNames.push(card);
-      }
-      cardsMove.players.push([playerObj[i], handNames]);
-      gamePlayers.set(playerObj[i].name, currPlayer);
+  for (var player of playerObj) {
+    this.addPlayer(player, [], []);
+  }
+}
+
+method.getGameInfo = function() {
+  var gameInfo = {players: [], doors: [], treas: []};
+  for (var player of this.players.values()) {
+    var playerInfo = [{name: player.name, gender: player.gender}, [], []];
+    for (var name of player.hand.cards.keys()) {
+      playerInfo[1].push(name);
     }
+    for (var name of player.field.cards.keys()) {
+      playerInfo[2].push(name);
+    }
+    gameInfo.players.push(playerInfo);
   }
   var doorNames = [];
   var treasNames = [];
@@ -56,9 +56,55 @@ method.setPlayers = function(playerObj) {
     treasNames.push(treas);
   }
 
-	cardsMove.doors = doorNames;
-	cardsMove.treas = treasNames;
-	return cardsMove;
+  gameInfo.doors = doorNames;
+  gameInfo.treas = treasNames;
+  return gameInfo;
+}
+
+method.addPlayer = function(playerInfo, handNames, fieldNames) {
+  var oldPlayerName = "player" + this.players.size.toString();
+  var currPlayer = this.unsetPlayers.get(oldPlayerName);
+  currPlayer.name = playerInfo.name;
+  currPlayer.gender = playerInfo.gender;
+  if (handNames.length + fieldNames.length > 0) {
+    var handCards = this.findCards(handNames);
+    var fieldCards = this.findCards(fieldNames);
+    for (var card of handCards.values()) {
+      card.setCard1(currPlayer.hand);
+    }
+    for (var card of fieldCards.values()) {
+      card.setCard1(currPlayer.field);
+    }
+  } else {
+    currPlayer.draw(this.doors, this.dDis, 4);
+    currPlayer.draw(this.treas, this.tDis, 4);
+    for (var card of currPlayer.hand.cards.keys()) {
+      handNames.push(card);
+    }
+  }
+  this.players.set(playerInfo.name, currPlayer);
+  this.unsetPlayers.delete(oldPlayerName);
+  return [playerInfo, handNames, fieldNames];
+}
+
+method.delPlayer = function(playerName) {
+  var player = this.players.get(playerName);
+  player.level = 1;
+  player.strength = 1;
+  player.handSize = 5;
+  for (var deck of player.decks) {
+    for (var card of deck.cards.values()) {
+      if ('treasure item bonus'.indexOf(card.cardType) !== -1) {
+        card.setCard1(this.treas);
+        card.isEquipped = true;
+      } else {
+        card.setCard1(this.doors);
+        card.isEquipped = true;
+      }
+    }
+  }
+  this.unsetPlayers.set("player" + (this.players.size - 1).toString(), player);
+  this.players.delete(playerName);
 }
 
 method.kick = function() {

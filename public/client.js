@@ -26,7 +26,6 @@ socket.on('move cards', function(deck, cards) {
       break;
     case 'discard':
       game.discard(cards);
-      console.log(cardObjects);
       playerName = 'discard';
       fieldName = 'Field';
       break;
@@ -147,11 +146,11 @@ function monsterStr(amount) {
   socket.emit('monster strength', amount);
 }
 
-socket.on('monster strength', function(player, amount) {
+socket.on('monster strength', function(amount) {
   var strength = parseInt($('#monster').text(), 10);
   var newStrength = (strength + amount).toString();
-  $('#monster').text(newStrength);
-  game.round.combat.monsterStr += amount;
+  $('#monsterStr').text(newStrength);
+/*  game.round.combat.monsterStr += amount;*/
 });
 
 //untested
@@ -199,8 +198,53 @@ socket.on('kick', function() {
   var card = game.field.selectCard('last').name;
   loadCards('game', 'Field', [card]);
 });
+
+socket.on('toggle hand', function(playerName) {
+  if (playerName !== username) {
+    $('#' + playerName + 'HandCards').toggle();
+  }
+});
+
+socket.on('toggle deck', function(deckName) {
+  $('#' + deckName + 'CardDiv').toggle();
+});
+
+socket.on('face up', function(playerName, deckName) {
+  var player = game.players.get(playerName);
+  if (deckName == 'doors') {
+    var card = game.doors.selectCard('last');
+    player.draw(game.doors, game.dDis, 1);
+    game.findCards([card.name]).values().next().value.setCard1(game.field);
+  } else {
+    var card = game.treas.selectCard('last');
+    player.draw(game.treas, game.tDis, 1);
+    game.findCards([card.name]).values().next().value.setCard1(game.field);
+  }
+  loadCards('game', 'Field', [card.name]);
+});
+
+socket.on('look', function(monsterName) {
+  var monster = game.findCards([monsterName]).values().next().value;
+  monster.setCard1(game.field);
+  loadCards('game', 'Field', [monsterName]);
+});
+
+socket.on('loot', function(playerName) {
+  game.players.get(playerName).draw(game.doors, game.dDis, 1);
+  var card = game.doors.selectCard('last');
+  if (playerName == username) {
+    playerName = 'card';
+  }
+  loadCards(playerName, 'Hand', [card.name]);
+});
+
+socket.on('end turn', function(playerName) {
+  $('#turnPlayer').text(playerName);
+  game.turn += 1;
+  game.turn %= game.players.size;
+});
+
 // make curse specific
-// make random val
 // make round updater
 
 /*function charityDialog() {
