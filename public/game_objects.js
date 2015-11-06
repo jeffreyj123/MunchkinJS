@@ -63,9 +63,7 @@ method.getGameInfo = function() {
 
 method.addPlayer = function(playerInfo, handNames, fieldNames) {
   var oldPlayerName = "player" + this.players.size.toString();
-  console.log(this.players.size);
   var currPlayer = this.unsetPlayers.get(oldPlayerName);
-  console.log(playerInfo);
   currPlayer.name = playerInfo.name;
   currPlayer.gender = playerInfo.gender;
   if (handNames.length + fieldNames.length > 0) {

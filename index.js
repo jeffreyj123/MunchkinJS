@@ -93,11 +93,10 @@ io.on('connection', function(socket){
         typing = [];
         choices = [];
         players = 6;
-        for (var i = 0; i < game.players.size; i++) {
+        while (game.players.size > 0) {
           var playerName = game.players.keys().next().value;
           game.delPlayer(playerName);
         }
-        game.delPlayer(game.players.keys().next().value);
       }
     }
   });

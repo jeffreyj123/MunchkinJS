@@ -156,20 +156,20 @@
           </li>
           <li>
             <ul id="monsterInfo">
-              <li><button id="addMonStr" onClick="socket.emit('monster strength', 1)">Plus</button></li>
+              <li><button id="addMonStr" onClick="socket.emit('monster strength', 1)">+</button></li>
               <li>Monster Strength: <span id="monsterStr">0</span></li>
-              <li><button id="lowerMonStr" onClick="socket.emit('monster strength', -1)">Minus</button></li>
+              <li><button id="lowerMonStr" onClick="socket.emit('monster strength', -1)">-</button></li>
             </ul>
           </li>
           <li>
             <ul id="playerInfo">
               <li>You (<span id="user"></span>, <span id="gender"></span>): </li>
-              <li><button id="addStrength" onClick="strength(1)">Plus</button></li>
+              <li><button id="addStrength" onClick="strength(1)">+</button></li>
               <li>Strength: <span id="strength">1</span></li>
-              <li><button id="lowerStrength" onClick="strength(-1)">Minus</button></li>
-              <li><button id="addLevel" onClick="level(1)">Plus</button></li>
+              <li><button id="lowerStrength" onClick="strength(-1)">-</button></li>
+              <li><button id="addLevel" onClick="level(1)">+</button></li>
               <li>Level: <span id="level">1</span></li>
-              <li><button id="lowerLevel" onClick="level(-1)">Minus</button></li>
+              <li><button id="lowerLevel" onClick="level(-1)">-</button></li>
             </ul>
           </li>
           <li>

@@ -99,8 +99,6 @@ function updateTurnPlayer() {
   if (game.round !== null) {
     $('#turnPlayerInfo').show();
     $('#turnPlayer').text(game.round.playerName);
-  } else {
-    $('#turnPlayerInfo').hide();
   }
 }
 
