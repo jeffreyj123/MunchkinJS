@@ -151,7 +151,6 @@ socket.on('monster strength', function(amount) {
 /*  game.round.combat.monsterStr += amount;*/
 });
 
-//untested
 socket.on('change gender', function(name) {
   var selector = '';
   if (name !== username) {
@@ -243,7 +242,6 @@ socket.on('end turn', function(playerName) {
 });
 
 // make curse specific
-// make round updater
 
 /*function charityDialog() {
   $('#fields').hide();

@@ -1,21 +1,15 @@
 function myMessage(message) {
   $('#messages').append($('<li>').text(message));
+  $('#messages').animate({
+  scrollTop: $('#messages').get(0).scrollHeight}, 2000);
   chatAudio.play();
 }
 
-$(document).ready(function(){
-  $('#messages').animate({
-  scrollTop: $('#messages').get(0).scrollHeight}, 2000);
-});
-
 function history(message) {
   $('#history').append($('<li>').text(message));
-}
-
-$(document).ready(function(){
   $('#history').animate({
   scrollTop: $('#history').get(0).scrollHeight}, 2000);
-});
+}
 
 $('#chatForm').submit(function(){
   myMessage('Me: ' + $('#m').val());

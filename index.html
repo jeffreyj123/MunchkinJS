@@ -151,7 +151,7 @@
         <ul id="turnInfo">
           <li>
             <ul id="turnPlayerInfo">
-              <li>Player: <span id="turnPlayer"></span></li>
+              <li>Turn Player: <span id="turnPlayer"></span></li>
             </ul>
           </li>
           <li>
@@ -262,6 +262,9 @@
       }
 
       function moveCard(deck) {
+        if (selectedCards == []) {
+          return;
+        }
         var cardNames = getSelected().slice();
         for (var cardName of cardNames) {
           toggleSelect(cardName);
@@ -270,6 +273,9 @@
       }
 
       function lookForTrouble() {
+        if (selectedCards == []) {
+          return;
+        }
         var monsterName = getSelected()[0];
         for (var cardName of getSelected()) {
           toggleSelect(cardName);
@@ -340,8 +346,12 @@
     <script src="chat.js"></script>
     <script> // init socket functions
       socket.on('connect', function(){
-        username = prompt('Select a nickname.');
-        gender = prompt('What is your gender?');
+        while (username == '' || username == null) {
+          username = prompt('Choose a nickname.');
+        }
+        while (gender !== 'male' && gender !== 'female') {
+          gender = prompt('What gender would you like to have (male/female)?');
+        }
         $('#user').text(username);
         $('#gender').text(gender);
         socket.emit('new user', username, gender);
