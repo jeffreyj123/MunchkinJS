@@ -7,7 +7,7 @@ li {
   display: inline;
 }
 
-img {
+#fields img {
   width: auto;
   height: 275px;
 }
@@ -17,6 +17,7 @@ img {
 }
 
 #fields {
+  display: none;
   width: calc(100% - 210px);
   float: left;
 }
@@ -90,6 +91,7 @@ img {
 }
 
 #loadScreen {
+  display: none;
   font-family: Verdana;
   float: right;
   text-align: center;
@@ -98,7 +100,7 @@ img {
   min-height: 700px;
 }
 
-#loadScreen img {
+.loadBar img {
   width: auto;
   height: 100px;
   margin-top: 12.5px;
@@ -166,6 +168,11 @@ img {
   font-weight: bold;
 }
 
+.card {
+  width: auto;
+  height: 275px;
+}
+
 .card:hover {
   cursor: pointer;
   height: 300px;
@@ -207,9 +214,72 @@ img {
 
 .ui-menu { width: 100px; z-index: 1}
 
+#dialogs-container {
+  width: calc(100% - 210px);
+  text-align: center;
+  float: left;
+  display: none;
+}
+
+.dice-container {
+  width: 75px;
+  height: 75px;
+  max-height: 75px;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 20px;
+  margin: auto;
+  background-color: white;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.dice {
+  display: table;
+  width: 60px;
+  height: 60px;
+  margin: auto;
+  margin-top: 7px;
+}
+
+.dice ul {
+  display: table-row;
+}
+
+.dice li {
+  display: inline;
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-style: solid;
+  border-radius: 10px;
+  background-color: black;
+  margin: auto;
+}
+
+.gameEvent {
+  display: none;
+  width: 50%;
+  min-width: 300px;
+  font-family: Verdana;
+  font-size: 20px;
+  text-align: center;
+  background-color: #f1f1f1;
+  border-style: solid;
+  border-width: 3px;
+  border-radius: 20px;
+  padding-bottom: 20px;
+  margin: auto;
+  margin-top: 100px;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
-form { background: #000; padding: 3px; width: 100%; }
-form input { border: 0; width: 100%; }
+#chatForm { background: #000; padding: 3px; width: 100%; }
+#chatForm input { border: 0; width: 100%; }
 #messages { list-style-type: none; margin: 0; padding: 0; height: 250px; overflow-y: auto; background-color: #E0FFFF; }
 #messages li { display: list-item; }
 #messages li:nth-child(odd) { background: #eee; }
@@ -218,4 +288,139 @@ form input { border: 0; width: 100%; }
 #history li:nth-child(odd) { background: #eee; }
 .selected { border-style: solid; border-width: 3px; border-color: yellow;}
 .unequipped { border-style: solid; border-width: 3px; border-color: red;
+}
+
+#notice-container {
+  display: none;
+  text-align: center;
+  margin: auto;
+}
+
+#notice {
+  display: inline-block;
+  width: 300px;
+  min-height: 100px;
+  text-align: center;
+  font-family: Verdana;
+  font-size: 20px;
+  background-color: #f1f1f1;
+  border-style: solid;
+  border-width: 3px;
+  border-radius: 20px;
+}
+
+#notice p {
+  margin-top: 20px;
+  font-size: 12px;
+}
+
+#prompt-players {
+  display: none;
+  width: 50%;
+  border-style: solid;
+  border-width: 5px;
+  border-color: #4A0000;
+  border-radius: 20px;
+  margin: auto;
+  margin-top: 50px;
+  margin-bottom: 50px;
+  padding-top: 50px;
+  background-color: #f1f1f1;
+  text-align: center;
+}
+
+#prompt-players span {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+#send-players {
+  width: 150px;
+  height: 50px;
+  display: table;
+  text-align: center;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 10px;
+  margin: auto;
+  margin-top: 50px;
+  margin-bottom: 50px;
+  background-color: #4A0000;
+  color: white;
+}
+
+#send-players:hover {
+  cursor: pointer;
+  width: 200px;
+  height: 75px;
+}
+
+
+#prompt-connect {
+  display: none;
+  width: 60%;
+  border-style: solid;
+  border-width: 5px;
+  border-color: #4A0000;
+  border-radius: 20px;
+  margin: auto;
+  margin-left: calc(200px + 10%);
+  padding-top: 100px;
+  background-color: #f1f1f1;
+  text-align: center;
+}
+
+#prompt-connect img {
+  max-width: 90%;
+  height: auto;
+}
+
+#prompt-table {
+  display: table;
+  margin: auto;
+  margin-top: 100px;
+  background-color: #f1f1f1;
+}
+
+#prompt-connect ul {
+  display: table-row;
+  padding: 20px;
+}
+
+#prompt-connect li {
+  display: table-cell;
+}
+
+#prompt-connect input {
+  margin-left: 20px;
+}
+
+#connect:hover {
+  cursor: pointer;
+  width: 250px;
+  height: 75px;
+}
+
+#connect {
+  width: 200px;
+  height: 50px;
+  display: table;
+  text-align: center;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 10px;
+  margin: auto;
+  margin-top: 50px;
+  margin-bottom: 50px;
+  background-color: #4A0000;
+  color: white;
+}
+
+#connect span {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.invalid {
+  border: 2px solid red;
 }

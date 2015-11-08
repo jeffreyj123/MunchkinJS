@@ -15,7 +15,7 @@
         <div id="typing"></div>
         <ul id="online"></ul>
         <form action="" id="chatForm">
-          <input id="m" autocomplete="off" />
+          <input id="m" autocomplete="off"/>
         </form>
       </div>
       <div id="historybox">
@@ -23,7 +23,7 @@
         <ul id="history"></ul>
       </div>
 
-      <div class="optionMenu" id="options">
+      <div class="optionMenu" id="options" style="display:none">
         <div id="clientOptionsBox">
           <h4 id="clientOptions1" onClick="(function(){$('#clientOptions').toggle();if($('#clientOptions1').text()[-2] == '-'){$('#clientOptions1').text('Client Options [+]');} else {$('#clientOptions1').text('Client Options [-]');}})()">Client Options [-]</h4>
           <ul id="clientOptions">
@@ -47,8 +47,8 @@
         <div class="optionMenu" id="staticOptionsBox">
           <h4>Game Options</h4>
           <ul id="staticOptions">
-            <li onClick="socket.emit('kick')">Kick</li>
-            <li onClick="socket.emit('loot')">Loot the Room</li>
+            <li onClick="(function() {socket.emit('kick'); socket.emit('notice', 'Kick', null)})()">Kick</li>
+            <li onClick="(function() {socket.emit('loot'); socket.emit('notice', 'Loot', null)})()">Loot the Room</li>
             <li onClick="lookForTrouble()">Look for Trouble</li>
 <!--             <li onClick="charityDialog()">Charity</li> -->
             <li>
@@ -98,7 +98,7 @@
               </ul>
             </li>
             <li onClick="moveCard('discard')">Discard</li>
-            <li onClick="socket.emit('end turn')">End Turn</li>
+            <li onClick="(function() {socket.emit('end turn'); socket.emit('notice', 'End Turn', null)})()">End Turn</li>
             <!-- <li>  
               <ul id="tradeMenu">
                 <li>Trade
@@ -132,13 +132,13 @@
                 </li>
               </ul>
             </li>
-            <li onClick="randomVal()">Get Roll</li>
+            <li onClick="socket.emit('show dialog', 'diceDialog', true)">Roll Dice</li>
 <!--             <li onClick="socket.emit('resurrect')">Resurrect</li> -->
             <!-- <li onClick="runDialog()">Run Away</li> -->
 <!--             <li onClick="startCombat()">Start Combat</li>
             <li onClick="endCombat()">End Combat</li> -->
             <li onClick="socket.emit('toggle hand')">Toggle Hand</li>
-            <li onClick="socket.emit('change gender')">Change Gender</li>
+            <li onClick="(function() {socket.emit('change gender'); socket.emit('notice', 'Gender', null)})()">Change Gender</li>
             <li><a target="_blank" href="README.md">Help</a></li>
             <li><a target="_blank" href="http://www.worldofmunchkin.com/rules/munchkin_rules.pdf"/>Rules</a></li>
           </ul>
@@ -175,7 +175,7 @@
           </li>
           <li>
             <ul>
-              <li>Random Val: <span id="randomVal"></span></li>
+              <li>Recent Roll: <span id="rollVal"></span></li>
             </ul>
           </li>
         </ul>
@@ -187,6 +187,10 @@
         <div class="field" id="gameFieldCards"></div>
         <div id="tDis"></div>
         <div id="treasures"><img src="/images/treasure_back.gif"/></div>
+      </div>
+
+      <div id="notice-container">
+        <div id="notice"><h4><span id="noticeTopic"></span> (<span id="userNotice"></span>)</h4><p id="noticeMessage"></p></div>
       </div>
 
       <div class="gameDiv" id="doorCardDiv">
@@ -219,10 +223,33 @@
       </div>
     </div>
     <div id="imageContainer"></div>
+    <div id="prompt-connect">
+      <img src="http://gamefindr.co/wp-content/uploads/2015/03/SJG-Munchkin-Pathfinder.png"/><div id="prompt-table"><ul><li>Enter Nickname:</li><li><form action="" sclass="connect-form"><input id="user-prompt" autofocus></input></form></li></ul><ul><li>Enter Desired Gender (male/female):</li><li><form action="" class="connect-form"><input id="gender-prompt"></input></form></li></ul></div></form><div id="connect" onClick="connect()"><span>Connect to Munchkin</span></div>
+    </div>
     <div id="loadScreen">
       <h1>Loaded Players</h1>
       <div id="loadedPlayers"></div>
-      <h3>Waiting for <span id="numPlayers">3</span> more players...</h3>
+        <div id="prompt-players">
+          <h2>Number of Players</h2>
+          <form action="" id="players-form">Enter Number of Players (3-6): <input id="num-players"></input></form>
+          <div id="send-players" onClick="sendPlayers()"><span>Send</span></div>
+        </div>
+      <h3>Waiting for <span id="numPlayers">Choose Total Players</span> more players...</h3>
+    </div>
+    <div id="dialogs-container">
+      <div class="gameEvent" id="diceDialog">
+        <h2>Roll Dice (<span id='dialogUser'></span>)</h2>
+        <div class="dice-container" id="dice1" style="transform: rotate(10deg)">
+          <div class="dice"><ul><li><div class="dot"></div></li></ul></div></div>
+          <div class="dice-container" id="dice2"  style="transform: rotate(20deg); display: none"><div class="dice"><ul><li><div class="dot"></div></li><li><div class="dot" style="visibility:hidden"></div></li><li></li></ul><ul><li><div class="dot" style="visibility:hidden"></div></li></ul><ul><li></li><li></li><li><div class="dot"></div></li></ul></div></div>
+          <div class="dice-container" id="dice3" style="transform: rotate(30deg); display: none"><div class="dice"><ul><li><div class="dot"></div></li><li></li><li></li></ul><ul><li></li><li><div class="dot"></div></li><li></li></ul><ul><li></li><li></li><li><div class="dot"></div></li></ul></div></div>
+          <div class="dice-container" id="dice4" style="transform: rotate(40deg); display: none"><div class="dice"><ul><li><div class="dot"></div></li><li><div class="dot" style="visibility:hidden"></div></li><li><div class="dot"></div></li></ul><ul><li><div class="dot" style="visibility:hidden"></div></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul></div></div>
+          <div class="dice-container" id="dice5" style="transform: rotate(50deg); display: none"><div class="dice"><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul><ul><li></li><li><div class="dot"></div></li><li></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul></div></div>
+          <div class="dice-container" id="dice6" style="transform: rotate(60deg); display: none"><div class="dice"><ul><li><div class="dot"></div></li><li><div class="dot" style="visibility:hidden"></div></li><li><div class="dot"></div></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul></div>
+        </div>
+        <button class="confirm dialogOptions" onClick="getRandomRoll()">Roll It!</button>
+        <button class="cancel dialogOptions" onClick="socket.emit('hide dialog', 'diceDialog', true)">Cancel</button>
+      </div>
     </div>
     <script src="game_objects1.js"></script>
     <script src="munchCardNames.js"></script>
@@ -232,15 +259,47 @@
       var spectate = false;
       var username = '';
       var gender = '';
-      var numPlayers = 0;
+      var numPlayers = '2';
+      var sentConnect = false;
       var otherPlayersFocus = '';
       var selectedCards = [];
       var chatAudio = document.createElement('audio');
       chatAudio.setAttribute('src', 'DING.wav');
 
-      $('#fields').hide();
-      $('#loadScreen').show();
-      $('#options').hide();
+      $('.connect-form').submit(function(){
+        connect();
+        return false;
+      });
+
+      $('#players-form').submit(function() {
+        sendPlayers();
+        return false;
+      });
+
+      function connect() {
+        $('#user-prompt').removeClass('invalid');
+        $('#gender-prompt').removeClass('invalid');
+        username = $('#user-prompt').val();
+        gender = $('#gender-prompt').val();
+        if (username == '' || username == null) {
+          $('#user-prompt').val('');
+          $('#user-prompt').addClass('invalid');
+          return;
+        }
+        if (gender !== 'male' && gender !== 'female') {
+          $('#gender-prompt').val('');
+          $('#gender-prompt').addClass('invalid');
+          return;
+        }
+        $('#user').text(username);
+        $('#gender').text(gender);
+        socket.emit('new user', username, gender);
+        if (!sentConnect) 
+          myMessage('You have connected to the server. You may start sending messages...');
+        sentConnect = true;
+        $('#prompt-connect').hide();
+        $('#loadScreen').show();
+      }
       
       function toggleSelect(card) {
         var index = selectedCards.indexOf(card);
@@ -282,6 +341,7 @@
           toggleSelect(cardName);
         }
         socket.emit('look', monsterName);
+        socket.emit('notice', 'Look', null);
       }
 
       function loadCards(playerName, field, cards) {
@@ -347,23 +407,14 @@
     <script src="chat.js"></script>
     <script> // init socket functions
       socket.on('connect', function(){
-        while (username == '' || username == null) {
-          username = prompt('Choose a nickname.');
-        }
-        while (gender !== 'male' && gender !== 'female') {
-          gender = prompt('What gender would you like to have (male/female)?');
-        }
-        $('#user').text(username);
-        $('#gender').text(gender);
-        socket.emit('new user', username, gender);
-        myMessage('You have connected to the server. You may start sending messages...');
+        $('#prompt-connect').show();
       });
 
       socket.on('username', function() {
-      	username = prompt('Username taken. Choose another.');
-      	$('#user').text(username);
-      	socket.emit('new user', username, gender);
-      })
+        $('#loadScreen').hide()
+      	$('#prompt-connect').show();
+        $('#prompt-table').append('<ul><li style="margin-top: 10px;">Username Taken</li></ul>');
+      });
 
       socket.on('spectate', function() {
       	$('#messages').append($('<li>').text('Sorry, the game is full. You may continue sending messages or ask to be added to the game.'));
@@ -398,11 +449,18 @@
       });
 
       socket.on('players', function() {
-      	while(numPlayers < 3 || numPlayers > 6) {
-      		numPlayers = prompt('How many players should there be (3-6)?');      		
-      	}
-      	socket.emit('players', numPlayers);
+        $('#prompt-players').show();
       });
+
+      function sendPlayers() {
+        numPlayers = parseInt($('#num-players').val(), 10);   
+        if (isNaN(numPlayers) || numPlayers < 3 || numPlayers > 6) {
+          $('#num-players').addClass('invalid');
+          return;
+        }
+        socket.emit('players', numPlayers);
+        $('#prompt-players').hide();
+      }
 
       socket.on('online update', function(online, numPlayers) {
         $('#loadedPlayers').html('');
@@ -423,7 +481,7 @@
               $('#otherPlayers').append('<div class="field" id="' + name + 'HandCards"></div>');
               $('.playerMenu').append('<li>' + name + '</li>');
               $('#moveMenuPlayers').append('<li onClick="moveCard(\'' + name + ' hand\')">' + name + '</li>');
-              $('#curseMenuPlayers').append('<li onClick="moveCard(\'' + name + ' field\')">' + name + '</li>');
+              $('#curseMenuPlayers').append('<li onClick="(function() {moveCard(\'' + name + ' field\');socket.emit(\'notice\', \'Curse\', \'' + name + '\')})()">' + name + '</li>');
               $('#otherHandField').append('<ul><div id="' + name + 'Field" onClick="togglePlayerField(\'' + name + '\', \'Field\')">' + name + ' Level: <span class="' + name + 'Level">1</span> Strength: <span class="' + name + 'Strength">1</span> Gender: <span class="' + name + 'Gender">' + player[0].gender + '</span></div></ul>');  
             }
             game.addPlayer(player[0], player[1], player[2]);

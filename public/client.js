@@ -2,14 +2,75 @@ function getSelected() {
   return selectedCards;
 }
 
-function randomVal() {
-  var randomVal = Math.random() * 6;
-  randomVal = Math.floor(randomVal) + 1;
-  socket.emit('random val', randomVal);
+function notice(playerName, noticeTopic, message) {
+  $('#noticeTopic').text(noticeTopic);
+  $('#userNotice').text(playerName);
+  $('#noticeMessage').text(message);
+  $('#notice-container').toggle();
+  setTimeout(function() {
+    $('#notice-container').fadeOut(500);
+  }, 5000);
 }
 
-socket.on('random val', function(val) {
-  $('#randomVal').text(val);
+socket.on('notice', function(playerName, topic, message) {
+  notice(playerName, topic, message);
+});
+
+function hideDialog(dialog, showFields) {
+  $('#' + dialog).hide();
+  if (showFields) {
+    $('#dialogs-container').hide();
+    $('#fields').show();
+  }
+}
+
+function showDialog(dialog, hideFields) {
+  if (hideFields) {
+    $('#fields').hide();
+  }
+  $('#dialogs-container').show();
+  $('#' + dialog).show();
+}
+
+socket.on('show dialog', function(playerName, dialogName, hideFields) {
+  if (playerName !== username) {
+    $('#' + dialogName + ' .dialogOptions').hide();
+  } else {
+    $('#' + dialogName + ' .dialogOptions').show();
+  }
+  $('#dialogUser').text(playerName);
+  showDialog(dialogName, hideFields);
+});
+
+socket.on('hide dialog', function(dialogName, showFields) {
+  hideDialog(dialogName, showFields);
+});
+
+function getRandomRoll() {
+  var randomVal = Math.random() * 6;
+  randomVal = Math.floor(randomVal) + 1;
+  socket.emit('roll dice', randomVal);
+}
+
+function rollDice(num, start, preVal, endVal) {
+  var randomVal = Math.random() * 6;
+  randomVal = Math.floor(randomVal) + 1;
+  if (start >= num) {
+    $('#dice' + preVal).toggle();
+    $('#dice' + endVal).toggle();
+    $('#rollVal').text(endVal);
+    return;
+  }
+  $('#dice' + preVal).toggle();
+  $('#dice' + randomVal).toggle();
+  setTimeout(function() {
+    rollDice(num, start + 1, randomVal, endVal);
+  }, 70); 
+}
+
+socket.on('roll dice', function(preVal, endVal) {
+  rollDice(100, 0, preVal, endVal);
+
 });
 
 socket.on('move cards', function(deck, cards) {
@@ -244,20 +305,17 @@ socket.on('end turn', function(playerName) {
 // make curse specific
 
 /*function charityDialog() {
-  $('#fields').hide();
-  $('#charity').show();
+  showDialog('charity', true);
 }
 
 function confirmCharity() {
   var lowest = game.lowestLevel();
   // finish charity
-  $('#charity').hide();
-  $('#fields').show();
+  hideDialog('charity', 0);
 }
 
 function cancelCharity() {
-  $('#charity').hide();
-  $('#fields').show();
+  hideDialog('charity', 0)
 }
 
 function loot() {
@@ -298,18 +356,6 @@ function runDialog(runBool) {
     // wait a bit
     $('#runDialogFail').hide();
   }
-  $('#fields').show();
-}
-
-function diceDialog(endVal) {
-  // roll GUI
-  $('#fields').hide();
-  $('#diceDialog').show();
-  for (var i = 0; i < 31 + endVal; i++) {
-    $('#dice').attr('src', "/dice" + i.toString());
-    // wait a bit
-  }
-  $('#diceDialog').hide();
   $('#fields').show();
 }
 

@@ -31,10 +31,17 @@
   </div>
 </div>
 
-<div class="gameEvent" id="diceRoll">
-  <img id="dice" src="dice.gif"/> // check it
-  <button onClick="rollDice()">Roll It!</button>
-  <button onClick="$('#diceRoll').hide()">Cancel</button>
+<div class="gameEvent" id="diceDialog">
+  <div class="dice-container" id="dice1" style="transform: rotate(10deg)">
+    <div class="dice"><ul><li><div class="dot"></div></li></ul></div></div>
+    <div class="dice-container" id="dice2"  style="transform: rotate(20deg)"><div class="dice"><ul><li><div class="dot"></div></li><li><div class="dot" style="visibility:hidden"></div></li><li></li></ul><ul><li><div class="dot" style="visibility:hidden"></div></li></ul><ul><li></li><li></li><li><div class="dot"></div></li></ul></div></div>
+    <div class="dice-container" id="dice3" style="transform: rotate(30deg)"><div class="dice"><ul><li><div class="dot"></div></li><li></li><li></li></ul><ul><li></li><li><div class="dot"></div></li><li></li></ul><ul><li></li><li></li><li><div class="dot"></div></li></ul></div></div>
+    <div class="dice-container" id="dice4" style="transform: rotate(40deg)"><div class="dice"><ul><li><div class="dot"></div></li><li><div class="dot" style="visibility:hidden"></div></li><li><div class="dot"></div></li></ul><ul><li><div class="dot" style="visibility:hidden"></div></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul></div></div>
+    <div class="dice-container" id="dice5" style="transform: rotate(50deg)"><div class="dice"><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul><ul><li></li><li><div class="dot"></div></li><li></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul></div></div>
+    <div class="dice-container" id="dice6" style="transform: rotate(60deg)"><div class="dice"><ul><li><div class="dot"></div></li><li><div class="dot" style="visibility:hidden"></div></li><li><div class="dot"></div></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul></div>
+  </div>
+  <button class="confirm dialogOptions" onClick="getRandomRoll()">Roll It!</button>
+  <button class="cancel dialogOptions" onClick="socket.emit('hide dialog', 'diceDialog', true)">Cancel</button>
 </div>
 
 <div class="gameEvent" id="chooseCards">

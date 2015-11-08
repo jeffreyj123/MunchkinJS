@@ -20,14 +20,17 @@ var spectate = [];
 var typing = [];
 var choices = [];
 var players = 6;
+var oldRoll = 1;
 
 io.on('connection', function(socket){
+  if (online.length == 0) {
+    socket.emit('players');
+  }
+
 	socket.on('new user', function(user, gender){
     socket.username = user;
     socket.gender = gender;
-    if (online.length == 0) {
-      socket.emit('players');
-    } else if (socketList.indexOf(socket.username) !== -1) {
+    if (socketList.indexOf(socket.username) !== -1) {
       socket.emit('username');
     } else {
       if (online.length >= players) {
@@ -162,11 +165,6 @@ io.on('connection', function(socket){
     game.kick();
     io.emit('kick');
     io.emit('history', socket.username + ' has kicked!');
-  });
-
-  socket.on('random val', function(val) {
-    io.emit('random val', val);
-    io.emit('history', socket.username + ' has rolled for ' + val.toString() + '.');
   });
 
   socket.on('toggle hand', function() {
@@ -423,6 +421,54 @@ io.on('connection', function(socket){
     }
     io.emit('draw', socket.username, deck);
     io.emit('history', socket.username + ' drew from ' + deckName + '.');
+  });
+
+  //dialogs
+  socket.on('show dialog', function(dialogName, hideFields) {
+    io.emit('show dialog', socket.username, dialogName, hideFields);
+  });
+
+  socket.on('hide dialog', function(dialogName, showFields) {
+    io.emit('hide dialog', dialogName, showFields);
+  });
+
+  //diceRoll
+  socket.on('roll dice', function(endVal) {
+    io.emit('roll dice', oldRoll, endVal);
+    setTimeout(function() {
+      io.emit('history', socket.username + ' has rolled for a ' + endVal + '!');
+    }, 8000);
+    oldRoll = endVal;
+  });
+
+  //notices
+  socket.on('notice', function(topic, target) {
+    var message = '';
+    switch(topic) {
+      case 'Kick':
+        message = socket.username + ' has kicked!';
+        break;
+      case 'Loot':
+        topic = 'Loot the Room';
+        message = socket.username + ' is looting the room!';
+        break;
+      case 'Look':
+        topic = 'Look for Trouble';
+        message = socket.username + ' is looking for trouble!';
+        break;
+      case 'Curse':
+        message = socket.username + ' has cursed ' + target + '!';
+        break;
+      case 'End Turn':
+        message = socket.username + ' has ended their turn.';
+        break;
+      case 'Gender':
+        message = socket.username + ' has switched genders!';
+        break;
+      default:
+        break;
+    }
+    socket.broadcast.emit('notice', socket.username, topic, message);
   });
 /*
   //trade
