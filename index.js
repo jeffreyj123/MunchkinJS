@@ -59,8 +59,6 @@ io.on('connection', function(socket){
 
   socket.on('players', function(numPlayers) {
     players = numPlayers;
-    socketList.push(socket.username);
-    online.push({name: socket.username, gender: socket.gender});
     io.emit('online update', online, players);
   });
 
