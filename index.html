@@ -132,7 +132,7 @@
                 </li>
               </ul>
             </li>
-            <li onClick="socket.emit('show dialog', 'diceDialog', true)">Roll Dice</li>
+            <li onClick="socket.emit('show dialog', 'diceDialog', false)">Roll Dice</li>
 <!--             <li onClick="socket.emit('resurrect')">Resurrect</li> -->
             <!-- <li onClick="runDialog()">Run Away</li> -->
 <!--             <li onClick="startCombat()">Start Combat</li>
@@ -189,6 +189,22 @@
         <div id="treasures"><img src="/images/treasure_back.gif"/></div>
       </div>
 
+      <div id="dialogs-container">
+        <div class="gameEvent" id="diceDialog" style="max-width: 400px">
+          <h2>Roll Dice (<span id='dialogUser'></span>)</h2>
+          <div class="dice-container" id="dice1" style="transform: rotate(10deg)">
+            <div class="dice"><ul><li><div class="dot"></div></li></ul></div></div>
+            <div class="dice-container" id="dice2"  style="transform: rotate(20deg); display: none"><div class="dice"><ul><li><div class="dot"></div></li><li><div class="dot" style="visibility:hidden"></div></li><li></li></ul><ul><li><div class="dot" style="visibility:hidden"></div></li></ul><ul><li></li><li></li><li><div class="dot"></div></li></ul></div></div>
+            <div class="dice-container" id="dice3" style="transform: rotate(30deg); display: none"><div class="dice"><ul><li><div class="dot"></div></li><li></li><li></li></ul><ul><li></li><li><div class="dot"></div></li><li></li></ul><ul><li></li><li></li><li><div class="dot"></div></li></ul></div></div>
+            <div class="dice-container" id="dice4" style="transform: rotate(40deg); display: none"><div class="dice"><ul><li><div class="dot"></div></li><li><div class="dot" style="visibility:hidden"></div></li><li><div class="dot"></div></li></ul><ul><li><div class="dot" style="visibility:hidden"></div></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul></div></div>
+            <div class="dice-container" id="dice5" style="transform: rotate(50deg); display: none"><div class="dice"><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul><ul><li></li><li><div class="dot"></div></li><li></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul></div></div>
+            <div class="dice-container" id="dice6" style="transform: rotate(60deg); display: none"><div class="dice"><ul><li><div class="dot"></div></li><li><div class="dot" style="visibility:hidden"></div></li><li><div class="dot"></div></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul></div>
+          </div>
+          <button class="confirm dialogOptions" onClick="getRandomRoll()">Roll It!</button>
+          <button class="cancel dialogOptions" onClick="socket.emit('hide dialog', 'diceDialog', true)">Cancel</button>
+        </div>
+      </div>
+
       <div id="notice-container">
         <div id="notice"><h4><span id="noticeTopic"></span> (<span id="userNotice"></span>)</h4><p id="noticeMessage"></p></div>
       </div>
@@ -235,21 +251,6 @@
           <div id="send-players" onClick="sendPlayers()"><span>Send</span></div>
         </div>
       <h3>Waiting for <span id="numPlayers">Choose Total Players</span> more players...</h3>
-    </div>
-    <div id="dialogs-container">
-      <div class="gameEvent" id="diceDialog">
-        <h2>Roll Dice (<span id='dialogUser'></span>)</h2>
-        <div class="dice-container" id="dice1" style="transform: rotate(10deg)">
-          <div class="dice"><ul><li><div class="dot"></div></li></ul></div></div>
-          <div class="dice-container" id="dice2"  style="transform: rotate(20deg); display: none"><div class="dice"><ul><li><div class="dot"></div></li><li><div class="dot" style="visibility:hidden"></div></li><li></li></ul><ul><li><div class="dot" style="visibility:hidden"></div></li></ul><ul><li></li><li></li><li><div class="dot"></div></li></ul></div></div>
-          <div class="dice-container" id="dice3" style="transform: rotate(30deg); display: none"><div class="dice"><ul><li><div class="dot"></div></li><li></li><li></li></ul><ul><li></li><li><div class="dot"></div></li><li></li></ul><ul><li></li><li></li><li><div class="dot"></div></li></ul></div></div>
-          <div class="dice-container" id="dice4" style="transform: rotate(40deg); display: none"><div class="dice"><ul><li><div class="dot"></div></li><li><div class="dot" style="visibility:hidden"></div></li><li><div class="dot"></div></li></ul><ul><li><div class="dot" style="visibility:hidden"></div></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul></div></div>
-          <div class="dice-container" id="dice5" style="transform: rotate(50deg); display: none"><div class="dice"><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul><ul><li></li><li><div class="dot"></div></li><li></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul></div></div>
-          <div class="dice-container" id="dice6" style="transform: rotate(60deg); display: none"><div class="dice"><ul><li><div class="dot"></div></li><li><div class="dot" style="visibility:hidden"></div></li><li><div class="dot"></div></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul><ul><li><div class="dot"></div></li><li></li><li><div class="dot"></div></li></ul></div>
-        </div>
-        <button class="confirm dialogOptions" onClick="getRandomRoll()">Roll It!</button>
-        <button class="cancel dialogOptions" onClick="socket.emit('hide dialog', 'diceDialog', true)">Cancel</button>
-      </div>
     </div>
     <script src="game_objects1.js"></script>
     <script src="munchCardNames.js"></script>
@@ -417,11 +418,9 @@
       });
 
       socket.on('spectate', function() {
-      	$('#messages').append($('<li>').text('Sorry, the game is full. You may continue sending messages or ask to be added to the game.'));
+      	myMessage('Sorry, the game is full. You may continue sending messages or ask to be added to the game.');
       	spectate = true;
       	$('#player').hide();
-        $('#options').hide();
-        $('#loadScreen').hide();
         $('#fields').show();
         $('#playerInfo').hide();
         $('#monsterInfo button').hide();
@@ -430,22 +429,46 @@
         socket.emit('spectate');
       });
 
-      socket.on('unspectate', function(player) {
-        spectate = false;
-        $('#' + player + 'FieldCards img').appendTo('#cardField');
-        $('#' + player + 'Field').remove();
-        $('#' + player + 'FieldCards').remove();
-        var newSelf = game.players.get('player');
-        //setup username/gender
-        //redo player menus
-        var cards = [];
-        for (var card of newSelf.hand.keys()) {
-          cards.push(card);
+      socket.on('unspectate', function(oldPlayer, newPlayer) {
+        if (username == newPlayer) {
+          spectate = false;
+          // delete references to oldPlayer in menus, add cards to player field/hand
+          $('#' + oldPlayer + 'FieldCards img').appendTo('#cardField');
+          $('#' + oldPlayer + 'Field').remove();
+          $('.' + oldPlayer + 'Menu').remove();
+          $('#' + oldPlayer + 'Curse').remove();
+          $('#' + oldPlayer + 'Move').remove(); // change so that everything associated with given name has name as class. reference specific ones with container ids
+          // setup username/gender
+          var newSelf = game.players.get(oldPlayer);
+          username = newSelf.name;
+          gender = newSelf.gender;
+          $('#user').text(oldPlayer);
+          $('#gender').text(newSelf.gender);
+          var handCards = [];
+          for (var card of newSelf.hand.cards.keys()) {
+            handCards.push(card);
+          }
+          var fieldCards = [];
+          for (var card of newSelf.field.cards.keys()) {
+            fieldCards.push(card);
+          }
+          loadCards('card', 'Hand', handCards);
+          loadCards('card', 'Field', fieldCards);
+          $('#' + oldPlayer + 'FieldCards').remove();
+          $('#' + oldPlayer + 'HandCards').remove();
+
+          $('#player').show();
+          $('#options').show();
+          $('#playerInfo').show();
+          $('#monsterInfo button').show();
+          $('#doors').show();
+          $('#treasures').show();
+          myMessage('Congratulations! You have been added to the game as ' + oldPlayer + '.');
+          socket.emit('notice', 'Replacement', oldPlayer);
+          socket.emit('unspectate', username, gender);
+        } else {
+          myMessage(newPlayer + ' has replaced ' + oldPlayer + '!');
         }
-        loadCards('card', 'Hand', cards);
-        $('#player').show();
-        $('#option').show();
-        // finish
       });
 
       socket.on('players', function() {
@@ -464,24 +487,40 @@
 
       socket.on('online update', function(online, numPlayers) {
         $('#loadedPlayers').html('');
-        for (var user in online) {
-          var name = online[user].name;
-          var gender = online[user].gender;
-          $('#loadedPlayers').append('<div class="loadBar"><img src="/images/' + gender + '.gif"/><span>' + name + ' ' + gender + '</span></div>');
+        for (var user of online) {
+          var name = user.name;
+          var gender = user.gender;
+          $('#loadedPlayers').append('<div class="loadBar" style="display:none"><img src="/images/' + gender + '.gif"/><span>' + name + ' ' + gender + '</span></div>');
         }
+        $('.loadBar').show();
         $('#numPlayers').text(numPlayers - online.length);
+        if (online.length < game.players.size) {
+          $('#fields').hide();
+          $('#staticOptionsBox').hide();
+          $('#dynamicOptionsBox').hide();
+          $('#loadScreen').show();
+        }
       });
 
     	socket.on('game', function(initCards, init) {
+/*        if (!init) {
+          var player = game.players.get(username);
+          if (typeof player === 'undefined' || player.gender !== gender) {
+            init = true;
+            break;
+          }
+        }*/
+        // add support for losing more than one person but continuing game
+
         for (var player of initCards.players) {
           var name = player[0].name;
           if (name != username) {
             if (init) {
               $('#otherPlayers').append('<div class="field" id="' + name + 'FieldCards"></div>');
               $('#otherPlayers').append('<div class="field" id="' + name + 'HandCards"></div>');
-              $('.playerMenu').append('<li>' + name + '</li>');
-              $('#moveMenuPlayers').append('<li onClick="moveCard(\'' + name + ' hand\')">' + name + '</li>');
-              $('#curseMenuPlayers').append('<li onClick="(function() {moveCard(\'' + name + ' field\');socket.emit(\'notice\', \'Curse\', \'' + name + '\')})()">' + name + '</li>');
+              $('.playerMenu').append('<li class="' + name + 'Menu">' + name + '</li>');
+              $('#moveMenuPlayers').append('<li id="' + name + 'Move" onClick="moveCard(\'' + name + ' hand\')">' + name + '</li>');
+              $('#curseMenuPlayers').append('<li id="' + name + 'Curse" onClick="(function() {moveCard(\'' + name + ' field\');socket.emit(\'notice\', \'Curse\', \'' + name + '\')})()">' + name + '</li>');
               $('#otherHandField').append('<ul><div id="' + name + 'Field" onClick="togglePlayerField(\'' + name + '\', \'Field\')">' + name + ' Level: <span class="' + name + 'Level">1</span> Strength: <span class="' + name + 'Strength">1</span> Gender: <span class="' + name + 'Gender">' + player[0].gender + '</span></div></ul>');  
             }
             game.addPlayer(player[0], player[1], player[2]);
@@ -501,28 +540,30 @@
           }
         }
 
-        var doorCards = [];
-        for (var card of game.findCards(initCards.doors).values()) {
-          card.setCard1(game.doors);
-          doorCards.push(card.name);
-        }
-        loadCards('door', 'Field', doorCards);
-
-        var treasCards = [];
-        for (var card of game.findCards(initCards.treas).values()) {
-          card.setCard1(game.treas);
-          treasCards.push(name);
-        }
-        loadCards('treasure', 'Field', treasCards);
-
         $('#doorCardDiv').hide();
         $('#treasCardDiv').hide();
         $('#dDisCardDiv').hide();
         $('#tDisCardDiv').hide();
+        $('#loadScreen').hide();
+        $('#fields').show();
 
         // fix menus, add functionality incl toggle
         // initiate user menus
         if (init) {
+          var doorCards = [];
+          for (var card of game.findCards(initCards.doors).values()) {
+            card.setCard1(game.doors);
+            doorCards.push(card.name);
+          }
+          loadCards('door', 'Field', doorCards);
+
+          var treasCards = [];
+          for (var card of game.findCards(initCards.treas).values()) {
+            card.setCard1(game.treas);
+            treasCards.push(name);
+          }
+          loadCards('treasure', 'Field', treasCards);
+
           $('#turnPlayer').text(game.players.keys().next().value);
           var num = initCards.players.length - 1;
           var newHeight = ((280 - 10 * num) / num);
@@ -535,8 +576,6 @@
         }
 
         if (!spectate) {
-          $('#loadScreen').hide();
-          $('#fields').show();
           $('#options').show();
         }
     	});

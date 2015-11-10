@@ -51,8 +51,14 @@ io.on('connection', function(socket){
             users.push(online[user]);
           }
         }*/
-        game.initPlayers(online);
-        io.emit('game', game.getGameInfo(), true);
+        if (game.players.size === 0) {
+          game.initPlayers(online);
+          io.emit('game', game.getGameInfo(), true);          
+        } /*else {
+          socket.emit('game', game.getGameInfo(), true);
+          socket.broadcast.emit('game', [], false);
+        }*/
+        // add support for connecting after disconnect
       }
     }
 	});
@@ -82,11 +88,28 @@ io.on('connection', function(socket){
   socket.on('disconnect', function(){
     if (typeof socket.username !== 'undefined') {
       io.emit('chat message', socket.username + ' has disconnected');
-      if (socketList.indexOf(socket.username) !== -1) {
-        online.splice(socketList.indexOf(socket.username), 1);
-        socketList.splice(socketList.indexOf(socket.username), 1);
-        io.emit('online update', online, players);
+
+      online.splice(socketList.indexOf(socket.username), 1);
+      socketList.splice(socketList.indexOf(socket.username), 1);
+      io.emit('online update', online, players);
+
+      if (game.players.size > 0) {
+        if (spectate.indexOf(socket.username) !== -1) {
+          spectate.splice(socketList.indexOf(socket.username), 1);
+        } else {
+          if (spectate.length > 0) {
+            var replacement = spectate.shift();
+            var replaceSocket = socketList.indexOf(replacement.name);
+            socketList[replaceSocket] = replacement.name;
+            online[replaceSocket] = replacement;
+
+            io.emit('unspectate', socket.username, replacement.name);
+          } else {
+            io.emit('online update', online, players);
+          }
+        }
       }
+
       if(online.length == 0) {
         vassal = true;
         online = [];
@@ -100,6 +123,11 @@ io.on('connection', function(socket){
         }
       }
     }
+  });
+
+  socket.on('unspectate', function(name, gender) {
+    socket.username = name;
+    socket.gender = gender;
   });
 
   // chat handlers
@@ -366,6 +394,7 @@ io.on('connection', function(socket){
     }
     var cardString = '';
     for (var card of cards) {
+      card = card.replace('_', ' ');
       cardString = cardString.concat(card + ', ');
     }
     cardString = cardString.substring(0, cardString.length - 2);
@@ -462,6 +491,9 @@ io.on('connection', function(socket){
         break;
       case 'Gender':
         message = socket.username + ' has switched genders!';
+        break;
+      case 'Replacement':
+        message = socket.username + ' has replaced ' + target + '!';
         break;
       default:
         break;

@@ -69,8 +69,7 @@ function rollDice(num, start, preVal, endVal) {
 }
 
 socket.on('roll dice', function(preVal, endVal) {
-  rollDice(100, 0, preVal, endVal);
-
+  rollDice(80, 0, preVal, endVal);
 });
 
 socket.on('move cards', function(deck, cards) {
@@ -166,14 +165,15 @@ function updateTurnPlayer() {
 function level(amount) {
   socket.emit('level', amount);
   var level = parseInt($('#level').text(), 10);
-  var newLevel = (level + amount).toString();
+  var newLevel = level + amount;
   $('#level').text(newLevel);
+  strength(amount);
 }
 
 function strength(amount) {
   socket.emit('strength', amount);
   var strength = parseInt($('#strength').text(), 10);
-  var newStrength = (strength + amount).toString();
+  var newStrength = strength + amount;
   $('#strength').text(newStrength);
 }
 
@@ -181,7 +181,7 @@ socket.on('level', function(player, amount) {
   if (username !== player) {
     player = game.players.get(player);
     player.level += amount;
-    $('.' + player.name + 'Level').text(player.level.toString());
+    $('.' + player.name + 'Level').text(player.level);
   }
   if (game.round !== null && game.round.combat !== null) {
     game.round.combat.strength();
@@ -193,7 +193,7 @@ socket.on('strength', function(player, amount) {
   if (username !== player) {
     player = game.players.get(player);
     player.strength += amount;
-    $('.' + player.name + 'Strength').text(player.strength.toString());
+    $('.' + player.name + 'Strength').text(player.strength);
   }
   if (game.round !== null && game.round.combat !== null) {
     game.round.combat.strength();
@@ -206,8 +206,8 @@ function monsterStr(amount) {
 }
 
 socket.on('monster strength', function(amount) {
-  var strength = parseInt($('#monster').text(), 10);
-  var newStrength = (strength + amount).toString();
+  var strength = parseInt($('#monsterStr').text(), 10);
+  var newStrength = (strength + amount);
   $('#monsterStr').text(newStrength);
 /*  game.round.combat.monsterStr += amount;*/
 });
